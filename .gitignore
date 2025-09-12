@@ -7,11 +7,13 @@ build/
 *.map
 *.o
 *.d
+*
 
 .settings/
 .cproject
 .project
 .launch
+*.launch
 
 # CubeIDE-generated backup files
 *~
