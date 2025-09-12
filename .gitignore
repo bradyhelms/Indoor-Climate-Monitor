@@ -1,0 +1,27 @@
+Debug/
+Release/
+build/
+*.bin
+*.elf
+*.hex
+*.map
+*.o
+*.d
+
+.settings/
+.cproject
+.project
+.launch
+
+# CubeIDE-generated backup files
+*~
+
+# Library and dependencies
+libs/
+Middlewares/
+
+# Temp & OS files
+*.bak
+*.tmp
+*.log
+*.swp
