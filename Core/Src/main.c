@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "i2c_lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +46,7 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+I2C_LCD_HandleTypeDef lcd;
 
 /* USER CODE END PV */
 
@@ -56,7 +57,11 @@ static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+void init_lcd(void);
+void temp_monitor_setup(void);
+void set_temp(int temperature);
+void set_humd(int humidity);
+char* int_to_string(char* buffer, int num);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -97,6 +102,14 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  init_lcd();
+  temp_monitor_setup();
+  // Add delay just so the start up screen doens't display garbage data
+  HAL_Delay(1000);
+
+  set_temp(50);
+  set_humd(42);
 
   /* USER CODE END 2 */
 
@@ -298,7 +311,84 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void init_lcd(void) {
+  lcd.hi2c = &hi2c1;
+  lcd.address = 0x27 << 1;
+  lcd_init(&lcd);
 
+  // Display initial text
+  lcd_clear(&lcd);
+  lcd_puts(&lcd, "Initializing...");
+  HAL_Delay(500);
+}
+
+void temp_monitor_setup(void) {
+  lcd_clear(&lcd);
+  lcd_puts(&lcd, "Temp: ");
+  lcd_gotoxy(&lcd, 0, 1);
+  lcd_puts(&lcd, "Humd: ");
+}
+
+void set_temp(int temperature) {
+  char temp_str[10];
+  int_to_string(temp_str, temperature);
+  lcd_gotoxy(&lcd, 6, 0);
+  lcd_puts(&lcd, "   C ");
+  lcd_gotoxy(&lcd, 6, 0);
+  lcd_puts(&lcd, temp_str); 
+
+}
+
+void set_humd(int humidity) {
+  char humd_str[10];
+  int_to_string(humd_str, humidity);
+  lcd_gotoxy(&lcd, 6, 1);
+  lcd_puts(&lcd, "   %  ");
+  lcd_gotoxy(&lcd, 6, 1);
+  lcd_puts(&lcd, humd_str); 
+}
+
+char* int_to_string(char* buffer, int num) {
+  if (buffer == NULL) return NULL;
+  
+  char* ptr = buffer;
+  char* start;
+  int is_negative = 0;
+  
+  if (num < 0) {
+    is_negative = 1;
+    num = -num; 
+  }
+  
+  if (num == 0) {
+    *ptr++ = '0';
+    *ptr = '\0';
+    return buffer;
+  }
+  
+  while (num > 0) {
+    *ptr++ = '0' + (num % 10);
+    num /= 10;
+  }
+  
+  if (is_negative) {
+    *ptr++ = '-';
+  }
+  
+  *ptr = '\0';
+  start = buffer;
+  ptr--;  
+  
+  while (start < ptr) {
+      char temp = *start;
+      *start = *ptr;
+      *ptr = temp;
+      start++;
+      ptr--;
+  }
+  
+  return buffer;
+}
 /* USER CODE END 4 */
 
 /**

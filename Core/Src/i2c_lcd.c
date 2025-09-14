@@ -1,9 +1,11 @@
 /** 
  * I2C LCD Library for STM32 
- * Adapted from https://github.com/alixahedi/I2C-LCD-STM32 
+ * Object-oriented version with multiple LCD support
  */
 
 #include "i2c_lcd.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_i2c.h"
 
 /**
  * @brief  Sends a command to the LCD.
@@ -24,7 +26,7 @@ void lcd_send_cmd(I2C_LCD_HandleTypeDef *lcd, char cmd)
     data_t[2] = lower_nibble | 0x0C;  // en=1, rs=0
     data_t[3] = lower_nibble | 0x08;  // en=0, rs=0
 
-    HAL_I2C_Master_Transmit_IT(lcd->hi2c, lcd->address, data_t, 4);
+    HAL_I2C_Master_Transmit(lcd->hi2c, lcd->address, data_t, 4, 100);
 }
 
 /**
@@ -46,7 +48,7 @@ void lcd_send_data(I2C_LCD_HandleTypeDef *lcd, char data)
     data_t[2] = lower_nibble | 0x0D;  // en=1, rs=1
     data_t[3] = lower_nibble | 0x09;  // en=0, rs=1
 
-    HAL_I2C_Master_Transmit_IT(lcd->hi2c, lcd->address, data_t, 4);
+    HAL_I2C_Master_Transmit(lcd->hi2c, lcd->address, data_t, 4, 100);
 }
 
 /**

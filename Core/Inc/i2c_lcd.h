@@ -6,6 +6,17 @@
 #include "stm32f4xx_hal_i2c.h"
 
 /**
+ * @brief Includes the HAL driver present in the project
+ */
+#if __has_include("stm32f1xx_hal.h")
+	#include "stm32f1xx_hal.h"
+#elif __has_include("stm32c0xx_hal.h")
+	#include "stm32c0xx_hal.h"
+#elif __has_include("stm32g4xx_hal.h")
+	#include "stm32g4xx_hal.h"
+#endif
+
+/**
  * @brief Structure to hold LCD instance information
  */
 typedef struct {
